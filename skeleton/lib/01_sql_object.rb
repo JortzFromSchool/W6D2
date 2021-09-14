@@ -5,18 +5,31 @@ require 'active_support/inflector'
 
 class SQLObject
   def self.columns
-    # ...
+    return @cols if @cols
+    ex2 = DBConnection.execute2(<<-SQL)
+      SELECT
+        *
+      FROM
+        #{self.table_name}
+      LIMIT
+        0
+      SQL
+    cols = []
+    ex2[0].each do |col|
+      cols << col.to_sym
+    end
+    @cols = cols
   end
 
   def self.finalize!
   end
 
   def self.table_name=(table_name)
-    # ...
+    @table_name = table_name
   end
-
+ 
   def self.table_name
-    # ...
+    @table_name ||= ("#{self}").tableize
   end
 
   def self.all
